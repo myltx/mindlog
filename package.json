@@ -23,11 +23,11 @@
     "@oxc-parser/binding-darwin-arm64": "^0.94.0",
     "@oxc-resolver/binding-darwin-arm64": "^11.9.0",
     "@oxc-transform/binding-darwin-arm64": "^0.94.0",
-    "@unocss/nuxt": "^0.63.4",
+    "@unocss/nuxt": "^66.5.3",
     "@vueuse/core": "^13.9.0",
     "@vueuse/nuxt": "^13.9.0",
     "sass": "^1.83.8",
     "typescript": "^5.7.3",
-    "unocss": "^0.63.4"
+    "unocss": "^66.5.3"
   }
 }

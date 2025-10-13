@@ -7,6 +7,21 @@
 
 ## [Unreleased]
 
+## [1.0.1] - 2025-01-13
+
+### 修复 (Fixed)
+- 🔧 修复构建失败问题：升级 UnoCSS 到 66.5.3 以兼容 Vite 7.1.9
+- 🔧 解决 `cssPlugins.get(...).transform.call is not a function` 错误
+
+### 依赖更新 (Dependencies)
+- ⬆️ 升级 `@unocss/nuxt`: 0.63.6 → 66.5.3
+- ⬆️ 升级 `unocss`: 0.63.6 → 66.5.3
+
+### 验证 (Verified)
+- ✅ 生产构建成功（客户端 2.58s，服务端 1.80s）
+- ✅ Nitro 服务器构建完成
+- ✅ 预渲染功能正常
+
 ## [1.0.0] - 2025-01-13
 
 ### 新增 (Added)
@@ -101,5 +116,6 @@
 
 ## 链接 (Links)
 
-[Unreleased]: https://github.com/myltx/nuxt-website/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/myltx/nuxt-website/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/myltx/nuxt-website/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/myltx/nuxt-website/releases/tag/v1.0.0
