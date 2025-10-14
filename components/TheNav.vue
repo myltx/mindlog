@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { NavItem } from '~/types'
 
-// 导航菜单项
+// 导航菜单项（只包含内部链接）
 const navItems: NavItem[] = [
   { label: '首页', to: '/', icon: 'carbon:home' },
   { label: '博客', to: '/blog', icon: 'carbon:blog' },
@@ -85,7 +85,7 @@ onMounted(() => {
               :class="{ 'opacity-100': isActive(item.to) }"
             />
             <span class="relative flex items-center">
-              <Icon :name="item.icon" class="mr-2" />
+              <Icon :name="item.icon || 'carbon:link'" class="mr-2" />
               {{ item.label }}
             </span>
             <span
@@ -160,7 +160,7 @@ onMounted(() => {
             class="block px-4 py-3 mx-2 rounded-xl text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-300"
             :class="{ 'text-gray-900 dark:text-white bg-gradient-to-r from-primary/20 to-secondary/20': isActive(item.to) }"
           >
-            <Icon :name="item.icon" class="inline-block mr-2" />
+            <Icon :name="item.icon || 'carbon:link'" class="inline-block mr-2" />
             {{ item.label }}
           </NuxtLink>
         </div>

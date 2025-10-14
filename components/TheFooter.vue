@@ -15,6 +15,12 @@ const footerLinks = [
   { label: "关于", to: "/about" },
 ];
 
+// 外部链接
+const externalLinks = [
+  { label: "生活博客", url: "https://blog.example.com", icon: "carbon:coffee" },
+  // 可以添加更多外部链接
+];
+
 // 判断是否为当前页面
 const isActive = (path: string) => {
   if (path === "/") {
@@ -34,9 +40,10 @@ const isActive = (path: string) => {
     </div>
 
     <div class="container py-12 relative z-10">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- 主要内容区 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
         <!-- Logo 和简介 -->
-        <div class="space-y-4 animate-fade-in-up">
+        <div class="space-y-4 animate-fade-in-up lg:col-span-1">
           <div class="flex items-center space-x-3">
             <div
               class="w-10 h-10 bg-gradient-to-br from-primary via-secondary to-accent rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
@@ -46,66 +53,90 @@ const isActive = (path: string) => {
               >Mind<span class="gradient-text">log</span></span
             >
           </div>
-          <p class="text-gray-600 dark:text-gray-400 text-sm">
+          <p
+            class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed max-w-xs">
             记录思维轨迹 · 分享编程技术 · 探索技术思考
           </p>
-        </div>
-
-        <!-- 快速链接 -->
-        <div class="space-y-4 animate-fade-in-up" style="animation-delay: 0.1s">
-          <h3 class="text-gray-900 dark:text-white font-semibold text-lg">
-            快速链接
-          </h3>
-          <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
-            <NuxtLink
-              v-for="link in footerLinks"
-              :key="link.to"
-              :to="link.to"
-              class="relative text-sm transition-all duration-300 group"
-              :class="
-                isActive(link.to)
-                  ? 'text-primary font-medium'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-primary'
-              ">
-              {{ link.label }}
-              <!-- 悬停/激活下划线 -->
-              <span
-                class="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-300"
-                :class="
-                  isActive(link.to) ? 'w-full' : 'w-0 group-hover:w-full'
-                " />
-            </NuxtLink>
-          </div>
-        </div>
-
-        <!-- 社交媒体 -->
-        <div class="space-y-4 animate-fade-in-up" style="animation-delay: 0.2s">
-          <h3 class="text-gray-900 dark:text-white font-semibold text-lg">
-            关注我
-          </h3>
-          <div class="flex space-x-3">
+          <!-- 社交媒体 -->
+          <div class="flex space-x-3 pt-2">
             <a
               v-for="social in socialLinks"
               :key="social.name"
               :href="social.url"
               target="_blank"
               rel="noopener noreferrer"
-              class="w-10 h-10 rounded-xl backdrop-blur-sm bg-gray-100 dark:bg-slate-800/50 hover:bg-gradient-to-br hover:from-primary/20 hover:to-secondary/20 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-primary/30 border border-gray-200 dark:border-slate-700 hover:border-primary"
+              class="w-9 h-9 rounded-lg backdrop-blur-sm bg-gray-100 dark:bg-slate-800/50 hover:bg-gradient-to-br hover:from-primary/20 hover:to-secondary/20 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-primary/30 border border-gray-200 dark:border-slate-700 hover:border-primary"
               :aria-label="social.name">
-              <Icon :name="social.icon" class="w-5 h-5" />
+              <Icon :name="social.icon" class="w-4 h-4" />
             </a>
+          </div>
+        </div>
+
+        <!-- 链接区域 -->
+        <div class="md:col-span-1 lg:col-span-2">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
+            <!-- 快速链接 -->
+            <div class="space-y-4 animate-fade-in-up" style="animation-delay: 0.1s">
+              <h3 class="text-gray-900 dark:text-white font-semibold text-base mb-3">
+                快速导航
+              </h3>
+              <div class="flex flex-wrap gap-x-6 gap-y-2">
+                <NuxtLink
+                  v-for="link in footerLinks"
+                  :key="link.to"
+                  :to="link.to"
+                  class="relative text-sm transition-all duration-300 group"
+                  :class="
+                    isActive(link.to)
+                      ? 'text-primary font-medium'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-primary'
+                  ">
+                  {{ link.label }}
+                  <span
+                    class="absolute -bottom-0.5 left-0 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-300"
+                    :class="
+                      isActive(link.to) ? 'w-full' : 'w-0 group-hover:w-full'
+                    " />
+                </NuxtLink>
+              </div>
+            </div>
+
+            <!-- 更多内容 -->
+            <div class="space-y-4 animate-fade-in-up" style="animation-delay: 0.15s">
+              <h3 class="text-gray-900 dark:text-white font-semibold text-base mb-3">
+                更多内容
+              </h3>
+              <div class="flex flex-wrap gap-x-6 gap-y-2">
+                <a
+                  v-for="link in externalLinks"
+                  :key="link.url"
+                  :href="link.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="relative text-sm text-gray-600 dark:text-gray-400 hover:text-primary transition-all duration-300 group flex items-center gap-1.5">
+                  <Icon :name="link.icon" class="w-3.5 h-3.5 flex-shrink-0" />
+                  <span>{{ link.label }}</span>
+                  <Icon name="carbon:launch" class="w-3 h-3 opacity-50 flex-shrink-0" />
+                  <span
+                    class="absolute -bottom-0.5 left-0 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-300 w-0 group-hover:w-full" />
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- 版权信息 -->
       <div
-        class="mt-8 pt-8 border-t border-gray-200 dark:border-white/10 text-center text-gray-500 dark:text-gray-500 text-sm">
+        class="pt-8 border-t border-gray-200 dark:border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-gray-500 dark:text-gray-400 text-sm">
         <p>&copy; {{ currentYear }} Mindlog. All rights reserved.</p>
-        <p class="mt-2">
-          Built with <span class="text-primary">Nuxt.js</span> +
-          <span class="text-secondary">TypeScript</span> +
-          <span class="text-accent">UnoCSS</span>
+        <p class="flex items-center gap-2">
+          Built with
+          <span class="text-primary font-medium">Nuxt.js</span>
+          <span class="text-gray-400">+</span>
+          <span class="text-secondary font-medium">TypeScript</span>
+          <span class="text-gray-400">+</span>
+          <span class="text-accent font-medium">UnoCSS</span>
         </p>
       </div>
     </div>

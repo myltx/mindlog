@@ -16,19 +16,23 @@ export const useSearch = () => {
     isSearching.value = true
 
     try {
-      const { data } = await useAsyncData('search-posts', () =>
-        queryContent<Post>('/blog')
-          .where({
-            $or: [
-              { title: { $contains: query } },
-              { description: { $contains: query } },
-              { tags: { $contains: query } }
-            ]
-          })
-          .find()
-      )
+      // 获取所有博客文章
+      const allPosts = await queryContent<Post>('/blog').find()
 
-      searchResults.value = data.value || []
+      // 客户端搜索过滤
+      const lowerQuery = query.toLowerCase()
+      const filtered = allPosts.filter(post => {
+        const titleMatch = post.title?.toLowerCase().includes(lowerQuery)
+        const descMatch = post.description?.toLowerCase().includes(lowerQuery)
+        const tagsMatch = post.tags?.some(tag =>
+          tag.toLowerCase().includes(lowerQuery)
+        )
+        const categoryMatch = post.category?.toLowerCase().includes(lowerQuery)
+
+        return titleMatch || descMatch || tagsMatch || categoryMatch
+      })
+
+      searchResults.value = filtered
     } catch (error) {
       console.error('搜索出错:', error)
       searchResults.value = []

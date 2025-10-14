@@ -29,6 +29,7 @@ export interface NavItem {
   label: string
   to: string
   icon?: string
+  external?: boolean // 是否为外部链接
 }
 
 // 技能类型定义

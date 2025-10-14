@@ -21,14 +21,15 @@
 - **流畅动画** - 页面切换、入场动画、悬停效果、主题切换动画
 - **渐变色彩** - 极客风格配色（#00ff88 主色 + #00d9ff 副色）
 - **响应式设计** - 完美适配 PC、平板和手机
-- **自定义鼠标** - 独特的自定义鼠标指针效果（悬停交互）
+- **自定义鼠标** - 独特的自定义鼠标指针效果（仅桌面端显示，智能适配）
 - **滚动至顶部** - 智能显示的返回顶部按钮（脉冲动画）
+- **优化页脚** - 响应式页脚布局，支持外部链接展示
 
 ### 📝 内容管理
 - **Markdown 写作** - 基于 Nuxt Content，支持 Markdown 文章写作
 - **代码高亮** - 支持 10+ 编程语言的语法高亮（TypeScript、JavaScript、Vue、Python、Go 等）
 - **标签系统** - 按分类和标签筛选文章
-- **全文搜索** - 快速搜索文章标题、内容和标签（支持快捷键 ⌘K / Ctrl+K）
+- **全文搜索** - 快速搜索文章标题、描述、标签、分类（支持快捷键 ⌘K / Ctrl+K）
 - **阅读进度** - 实时显示文章阅读进度条（不受 footer 干扰）
 - **浏览统计** - 文章浏览次数统计
 - **优化布局** - 博客详情页使用专用布局，移除 footer 以提升阅读体验
@@ -222,18 +223,30 @@ const navItems: NavItem[] = [
 
 ### 禁用自定义鼠标
 
-如果不需要自定义鼠标指针，可以在 `layouts/default.vue` 和 `layouts/article.vue` 中移除：
+自定义鼠标已自动在移动端禁用。如果你想在所有设备上禁用，可以在 `layouts/default.vue` 和 `layouts/article.vue` 中移除：
 
 ```vue
 <!-- 删除或注释这一行 -->
 <CustomCursor />
 ```
 
+### 添加外部链接
+
+在页脚添加外部链接（如生活博客、作品集等），编辑 `components/TheFooter.vue`：
+
+```typescript
+const externalLinks = [
+  { label: "生活博客", url: "https://your-blog.com", icon: "carbon:coffee" },
+  { label: "摄影作品", url: "https://photos.example.com", icon: "carbon:image" },
+  { label: "读书笔记", url: "https://books.example.com", icon: "carbon:book" },
+]
+```
+
 ### 搜索功能使用
 
 - **点击搜索按钮**：导航栏右上角的搜索按钮
 - **键盘快捷键**：`⌘K` (Mac) 或 `Ctrl+K` (Windows/Linux)
-- **搜索范围**：文章标题、描述、标签
+- **搜索范围**：文章标题、描述、标签、分类
 - **实时搜索**：输入 2 个字符即可开始搜索
 
 ### 自定义动画
