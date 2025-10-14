@@ -7,6 +7,42 @@
 
 ## [Unreleased]
 
+## [1.0.3] - 2025-10-14
+
+### 新增 (Added)
+
+- ✨ 项目页面支持 iframe 实时预览模式，可直接嵌入展示真实网站
+- ✨ 添加预览模式切换功能（实时预览 / 截图模式）
+- ✨ 实现智能降级机制：iframe 失败时自动切换到截图服务
+- ✨ 支持多层截图服务备用链（Thum.io, Site-Shot 等）
+
+### 改进 (Improved)
+
+- 🎨 优化项目预览切换按钮样式，采用现代化渐变设计
+- 🎨 切换按钮与项目整体设计风格完美融合
+- 📱 响应式优化：移动端只显示图标，桌面端显示文字标签
+- 🎯 切换按钮移至"精选项目"标题旁，位置更合理
+- ⚡ iframe 预览模式完全避免了截图服务的速率限制问题
+
+### 修复 (Fixed)
+
+- 🔧 解决项目页面截图显示 403 错误的问题
+- 🔧 修复图片加载失败时的错误处理逻辑
+
+### 技术细节 (Technical)
+
+- iframe 使用 `scale` 缩放显示完整页面预览
+- 添加 `sandbox` 安全沙箱机制
+- 实现 `pointer-events-none` 禁用 iframe 内交互
+- 支持 `loading="lazy"` 懒加载优化性能
+- 智能记录失败的 iframe，避免重复尝试
+- 自动切换截图服务，提供 4 层备用方案
+
+### 文件变更
+
+- `pages/projects.vue` - 重构预览系统，添加双模式切换
+- `types/index.ts` - 添加项目类型定义（如需要）
+
 ## [1.0.2] - 2025-10-14
 
 ### 修复 (Fixed)
@@ -165,7 +201,8 @@
 
 ## 链接 (Links)
 
-[Unreleased]: https://github.com/myltx/nuxt-website/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/myltx/nuxt-website/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/myltx/nuxt-website/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/myltx/nuxt-website/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/myltx/nuxt-website/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/myltx/nuxt-website/releases/tag/v1.0.0

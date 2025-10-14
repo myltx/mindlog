@@ -17,7 +17,7 @@ export interface Post {
 export interface Project {
   title: string
   description: string
-  image: string
+  url: string // 项目网站地址，用于生成预览截图
   tech: string[]
   github?: string
   demo?: string
