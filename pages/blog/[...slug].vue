@@ -47,6 +47,11 @@ const copyCode = async (code: string) => {
   }
 }
 
+// 返回博客列表并滚动到顶部
+const goBackToBlog = () => {
+  navigateTo('/blog')
+}
+
 // 文章元数据
 useHead({
   title: post.value.title,
@@ -124,10 +129,10 @@ useHead({
           <!-- 文章底部 -->
           <footer class="border-t border-gray-200 dark:border-slate-800 pt-8 animate-fade-in-up" style="animation-delay: 0.4s;">
             <div class="flex items-center justify-between flex-wrap gap-4">
-              <NuxtLink to="/blog" class="btn group">
+              <button @click="goBackToBlog" class="btn group">
                 <Icon name="carbon:arrow-left" class="mr-2 group-hover:-translate-x-1 transition-transform" />
                 返回博客列表
-              </NuxtLink>
+              </button>
 
               <div class="flex gap-2">
                 <button class="btn btn-outline group">
