@@ -10,6 +10,7 @@ const projects: Project[] = [
     tech: ["Nuxt.js", "TypeScript", "UnoCSS", "Nuxt Content"],
     github: "https://github.com/mindLog",
     demo: "https://mindlog.myltx.top",
+    previewImage: "/projects/default-preview.svg",
     featured: true,
   },
   {
@@ -20,6 +21,7 @@ const projects: Project[] = [
     tech: ["Nuxt.js", "TypeScript", "UnoCSS", "Nuxt Content"],
     github: "https://github.com/mindLog",
     demo: "https://mindlog.myltx.top",
+    previewImage: "/projects/default-preview.svg",
     featured: true,
   },
   {
@@ -30,6 +32,7 @@ const projects: Project[] = [
     tech: ["Vue.js", "Node.js", "Socket.io", "MongoDB"],
     github: "https://github.com",
     demo: "https://socket.io",
+    previewImage: "/projects/default-preview.svg",
     featured: true,
   },
   {
@@ -39,6 +42,7 @@ const projects: Project[] = [
     url: "https://github.com",
     tech: ["React", "TypeScript", "Tailwind CSS", "Nest.js"],
     github: "https://github.com",
+    previewImage: "/projects/default-preview.svg",
     featured: true,
   },
   {
@@ -48,6 +52,7 @@ const projects: Project[] = [
     url: "https://echarts.apache.org",
     tech: ["Vue.js", "ECharts", "D3.js", "Python"],
     github: "https://github.com",
+    previewImage: "/projects/default-preview.svg",
     featured: false,
   },
   {
@@ -57,6 +62,7 @@ const projects: Project[] = [
     url: "https://ant.design",
     tech: ["React", "Ant Design", "Express", "PostgreSQL"],
     github: "https://github.com",
+    previewImage: "/projects/default-preview.svg",
     featured: false,
   },
   {
@@ -67,12 +73,13 @@ const projects: Project[] = [
     tech: ["Next.js", "OpenAI API", "TypeScript", "Vercel"],
     github: "https://github.com",
     demo: "https://vercel.com",
+    previewImage: "/projects/default-preview.svg",
     featured: true,
   },
 ];
 
-// 使用 iframe 模式还是截图模式
-const useIframeMode = ref(true);
+// 使用 iframe 模式还是截图模式（默认进入截图模式降低首屏压力）
+const useIframeMode = ref(false);
 
 // 截图服务备用方案（作为 iframe 失败时的后备）
 const screenshotServices = [
@@ -83,8 +90,37 @@ const screenshotServices = [
 // 跟踪 iframe 加载失败的项目
 const iframeFailedProjects = ref<Set<string>>(new Set());
 
+// 记录进入可视区域的项目，延迟加载 iframe
+const visibleProjects = ref<Set<string>>(new Set());
+const projectObservers = new Map<string, IntersectionObserver>();
+
+// 本地预览图兜底状态
+const localPreviewFailures = new Set<string>();
+
+// iframe 加载超时控制
+const iframeWatchdogs = new Map<string, number>();
+const WATCHDOG_TIMEOUT = 5000;
+
 // 跟踪截图服务索引
 const projectServiceIndex = ref<Record<string, number>>({});
+
+const clearIframeWatchdog = (projectTitle: string) => {
+  if (process.server) return;
+  const timer = iframeWatchdogs.get(projectTitle);
+  if (timer) {
+    window.clearTimeout(timer);
+    iframeWatchdogs.delete(projectTitle);
+  }
+};
+
+const startIframeWatchdog = (projectTitle: string) => {
+  if (process.server) return;
+  clearIframeWatchdog(projectTitle);
+  iframeWatchdogs.set(
+    projectTitle,
+    window.setTimeout(() => handleIframeError(projectTitle), WATCHDOG_TIMEOUT),
+  );
+};
 
 // 生成截图URL
 const getScreenshotUrl = (url: string, projectTitle?: string) => {
@@ -93,29 +129,122 @@ const getScreenshotUrl = (url: string, projectTitle?: string) => {
   return screenshotServices[serviceIndex](url);
 };
 
+const getPreviewImage = (project: Project) => {
+  if (project.previewImage && !localPreviewFailures.has(project.title)) {
+    return project.previewImage;
+  }
+  return getScreenshotUrl(project.url, project.title);
+};
+
 // 处理 iframe 加载失败
 const handleIframeError = (projectTitle: string) => {
-  iframeFailedProjects.value.add(projectTitle);
+  const next = new Set(iframeFailedProjects.value);
+  next.add(projectTitle);
+  iframeFailedProjects.value = next;
+  clearIframeWatchdog(projectTitle);
+};
+
+const handleIframeLoad = (projectTitle: string) => {
+  clearIframeWatchdog(projectTitle);
 };
 
 // 判断是否应该使用 iframe
 const shouldUseIframe = (projectTitle: string) => {
-  return useIframeMode.value && !iframeFailedProjects.value.has(projectTitle);
+  return (
+    useIframeMode.value &&
+    visibleProjects.value.has(projectTitle) &&
+    !iframeFailedProjects.value.has(projectTitle)
+  );
+};
+
+const markProjectVisible = (projectTitle: string) => {
+  if (visibleProjects.value.has(projectTitle)) return;
+  const next = new Set(visibleProjects.value);
+  next.add(projectTitle);
+  visibleProjects.value = next;
+};
+
+const registerCardObserver = (el: Element | null, projectTitle: string) => {
+  if (process.server) return;
+  projectObservers.get(projectTitle)?.disconnect();
+  if (!el) {
+    projectObservers.delete(projectTitle);
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          markProjectVisible(projectTitle);
+          observer.disconnect();
+          projectObservers.delete(projectTitle);
+        }
+      });
+    },
+    { rootMargin: "200px 0px" },
+  );
+
+  observer.observe(el);
+  projectObservers.set(projectTitle, observer);
+};
+
+const cleanupResources = () => {
+  projectObservers.forEach((observer) => observer.disconnect());
+  projectObservers.clear();
+  if (process.client) {
+    iframeWatchdogs.forEach((timer) => window.clearTimeout(timer));
+    iframeWatchdogs.clear();
+  }
+};
+
+const trackIframeLifecycle = (el: HTMLIFrameElement | null, projectTitle: string) => {
+  if (process.server) return;
+  if (el) {
+    startIframeWatchdog(projectTitle);
+  } else {
+    clearIframeWatchdog(projectTitle);
+  }
+};
+
+onBeforeUnmount(() => {
+  cleanupResources();
+});
+
+watch(useIframeMode, (enabled) => {
+  if (enabled) {
+    iframeFailedProjects.value = new Set();
+  } else if (process.client) {
+    iframeWatchdogs.forEach((timer) => window.clearTimeout(timer));
+    iframeWatchdogs.clear();
+  }
+});
+
+const handleLocalPreviewError = (projectTitle: string) => {
+  localPreviewFailures.add(projectTitle);
 };
 
 // 处理截图加载失败，切换到下一个服务
-const handleImageError = (e: Event, project: any) => {
+const handleImageError = (e: Event, project: Project) => {
   const img = e.target as HTMLImageElement;
   const key = project.title;
+
+  if (project.previewImage && !localPreviewFailures.has(key)) {
+    handleLocalPreviewError(key);
+    img.src = getScreenshotUrl(project.url, project.title);
+    return;
+  }
+
   const currentIndex = projectServiceIndex.value[key] || 0;
 
   if (currentIndex < screenshotServices.length - 1) {
     projectServiceIndex.value[key] = currentIndex + 1;
     img.src = getScreenshotUrl(project.url, project.title);
-  } else {
-    if (!img.src.includes('placehold.co')) {
-      img.src = `https://placehold.co/1200x800/0a0e27/00ff88?text=${encodeURIComponent(project.title)}`;
-    }
+    return;
+  }
+
+  if (!img.src.includes("placehold.co")) {
+    img.src = `https://placehold.co/1200x800/0a0e27/00ff88?text=${encodeURIComponent(project.title)}`;
   }
 };
 
@@ -188,7 +317,8 @@ const otherProjects = computed(() => projects.filter((p) => !p.featured));
           <div
             v-for="project in featuredProjects"
             :key="project.title"
-            class="card group overflow-hidden">
+            class="card group overflow-hidden"
+            :ref="(el) => registerCardObserver(el, project.title)">
             <!-- 项目预览 -->
             <div
               class="relative h-48 mb-4 -mt-6 -mx-6 overflow-hidden bg-dark-900">
@@ -201,13 +331,15 @@ const otherProjects = computed(() => projects.filter((p) => !p.featured));
                 style="width: 400%; height: 400%;"
                 loading="lazy"
                 sandbox="allow-scripts allow-same-origin"
-                @error="handleIframeError(project.title)"
+                :ref="(el) => trackIframeLifecycle(el, project.title)"
+                @load="() => handleIframeLoad(project.title)"
+                @error="() => handleIframeError(project.title)"
               />
 
               <!-- 截图模式 - iframe 失败时的后备方案 -->
               <img
                 v-else
-                :src="getScreenshotUrl(project.url, project.title)"
+                :src="getPreviewImage(project)"
                 :alt="project.title"
                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 loading="lazy"

@@ -21,6 +21,8 @@ export interface Project {
   tech: string[]
   github?: string
   demo?: string
+  // 可选的本地预览图，优先于在线截图/iframe
+  previewImage?: string
   featured: boolean
 }
 
