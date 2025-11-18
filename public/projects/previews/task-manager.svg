@@ -1,0 +1,18 @@
+<svg width='1200' height='800' viewBox='0 0 1200 800' xmlns='http://www.w3.org/2000/svg'>
+  <defs>
+    <linearGradient id='bg-task-manager' x1='0%' y1='0%' x2='100%' y2='100%'>
+      <stop offset='0%' stop-color='#111a2c' />
+      <stop offset='100%' stop-color='#0c213d' />
+    </linearGradient>
+    <linearGradient id='accent-task-manager' x1='0%' y1='0%' x2='100%' y2='0%'>
+      <stop offset='0%' stop-color='#00ff88' />
+      <stop offset='100%' stop-color='#00c896' />
+    </linearGradient>
+  </defs>
+  <rect width='1200' height='800' rx='48' fill='url(#bg-task-manager)' />
+  <circle cx='280' cy='200' r='120' fill='rgba(255,255,255,0.08)' />
+  <circle cx='940' cy='240' r='180' fill='rgba(255,255,255,0.06)' />
+  <rect x='170' y='360' width='860' height='220' rx='32' fill='rgba(0,0,0,0.35)' />
+  <text x='600' y='435' fill='#c7cbe9' font-size='48' font-family="'Poppins','Helvetica','Arial',sans-serif" text-anchor='middle'>任务管理系统</text>
+  <text x='600' y='520' fill='url(#accent-task-manager)' font-size='56' font-family="'Poppins','Helvetica','Arial',sans-serif" font-weight='700' text-anchor='middle'>看板 / 甘特 / OKR</text>
+</svg>

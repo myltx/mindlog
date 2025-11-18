@@ -1,82 +1,13 @@
 <script setup lang="ts">
 import type { Project } from "~/types";
 
-const projects: Project[] = [
-  {
-    title: "极客博客系统",
-    description:
-      "基于Nuxt.js + TypeScript + UnoCSS构建的现代化博客系统，支持Markdown写作、代码高亮、全文搜索等功能",
-    url: "https://mindlog.myltx.top",
-    tech: ["Nuxt.js", "TypeScript", "UnoCSS", "Nuxt Content"],
-    github: "https://github.com/mindLog",
-    demo: "https://mindlog.myltx.top",
-    previewImage: "/projects/default-preview.svg",
-    featured: true,
-  },
-  {
-    title: "Dream-hub",
-    description:
-      "基于Nuxt.js + TypeScript + UnoCSS构建的现代化博客系统，支持Markdown写作、代码高亮、全文搜索等功能",
-    url: "https://dream-hub.myltx.top/",
-    tech: ["Nuxt.js", "TypeScript", "UnoCSS", "Nuxt Content"],
-    github: "https://github.com/mindLog",
-    demo: "https://mindlog.myltx.top",
-    previewImage: "/projects/default-preview.svg",
-    featured: true,
-  },
-  {
-    title: "实时聊天应用",
-    description:
-      "基于WebSocket的实时聊天应用，支持私聊、群聊、文件传输、消息通知等功能",
-    url: "https://socket.io",
-    tech: ["Vue.js", "Node.js", "Socket.io", "MongoDB"],
-    github: "https://github.com",
-    demo: "https://socket.io",
-    previewImage: "/projects/default-preview.svg",
-    featured: true,
-  },
-  {
-    title: "任务管理系统",
-    description:
-      "团队协作任务管理工具，支持看板视图、甘特图、时间追踪、团队协作等功能",
-    url: "https://github.com",
-    tech: ["React", "TypeScript", "Tailwind CSS", "Nest.js"],
-    github: "https://github.com",
-    previewImage: "/projects/default-preview.svg",
-    featured: true,
-  },
-  {
-    title: "数据可视化平台",
-    description:
-      "企业级数据可视化平台，支持多种图表类型、实时数据更新、自定义仪表盘",
-    url: "https://echarts.apache.org",
-    tech: ["Vue.js", "ECharts", "D3.js", "Python"],
-    github: "https://github.com",
-    previewImage: "/projects/default-preview.svg",
-    featured: false,
-  },
-  {
-    title: "电商管理后台",
-    description:
-      "功能完善的电商管理后台系统，包含商品管理、订单处理、用户管理、数据统计等模块",
-    url: "https://ant.design",
-    tech: ["React", "Ant Design", "Express", "PostgreSQL"],
-    github: "https://github.com",
-    previewImage: "/projects/default-preview.svg",
-    featured: false,
-  },
-  {
-    title: "AI 写作助手",
-    description:
-      "基于AI的智能写作辅助工具，支持文章续写、语法检查、内容优化等功能",
-    url: "https://vercel.com",
-    tech: ["Next.js", "OpenAI API", "TypeScript", "Vercel"],
-    github: "https://github.com",
-    demo: "https://vercel.com",
-    previewImage: "/projects/default-preview.svg",
-    featured: true,
-  },
-];
+const { data: projectEntries } = await useAsyncData("projects", () =>
+  queryContent<Project>("/projects")
+    .sort({ featured: -1, title: 1 })
+    .find(),
+);
+
+const projects = computed<Project[]>(() => projectEntries.value ?? []);
 
 // 使用 iframe 模式还是截图模式（默认进入截图模式降低首屏压力）
 const useIframeMode = ref(false);
@@ -105,7 +36,7 @@ const WATCHDOG_TIMEOUT = 5000;
 const projectServiceIndex = ref<Record<string, number>>({});
 
 const clearIframeWatchdog = (projectTitle: string) => {
-  if (process.server) return;
+  if (import.meta.server) return;
   const timer = iframeWatchdogs.get(projectTitle);
   if (timer) {
     window.clearTimeout(timer);
@@ -114,7 +45,7 @@ const clearIframeWatchdog = (projectTitle: string) => {
 };
 
 const startIframeWatchdog = (projectTitle: string) => {
-  if (process.server) return;
+  if (import.meta.server) return;
   clearIframeWatchdog(projectTitle);
   iframeWatchdogs.set(
     projectTitle,
@@ -165,7 +96,7 @@ const markProjectVisible = (projectTitle: string) => {
 };
 
 const registerCardObserver = (el: Element | null, projectTitle: string) => {
-  if (process.server) return;
+  if (import.meta.server) return;
   projectObservers.get(projectTitle)?.disconnect();
   if (!el) {
     projectObservers.delete(projectTitle);
@@ -192,14 +123,14 @@ const registerCardObserver = (el: Element | null, projectTitle: string) => {
 const cleanupResources = () => {
   projectObservers.forEach((observer) => observer.disconnect());
   projectObservers.clear();
-  if (process.client) {
+  if (import.meta.client) {
     iframeWatchdogs.forEach((timer) => window.clearTimeout(timer));
     iframeWatchdogs.clear();
   }
 };
 
 const trackIframeLifecycle = (el: HTMLIFrameElement | null, projectTitle: string) => {
-  if (process.server) return;
+  if (import.meta.server) return;
   if (el) {
     startIframeWatchdog(projectTitle);
   } else {
@@ -214,7 +145,7 @@ onBeforeUnmount(() => {
 watch(useIframeMode, (enabled) => {
   if (enabled) {
     iframeFailedProjects.value = new Set();
-  } else if (process.client) {
+  } else if (import.meta.client) {
     iframeWatchdogs.forEach((timer) => window.clearTimeout(timer));
     iframeWatchdogs.clear();
   }
@@ -257,8 +188,8 @@ const getHostname = (url: string) => {
   }
 };
 
-const featuredProjects = computed(() => projects.filter((p) => p.featured));
-const otherProjects = computed(() => projects.filter((p) => !p.featured));
+const featuredProjects = computed(() => projects.value.filter((p) => p.featured));
+const otherProjects = computed(() => projects.value.filter((p) => !p.featured));
 </script>
 
 <template>
